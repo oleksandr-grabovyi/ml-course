@@ -1,4 +1,5 @@
 import numpy as np
+import time
 """
 Credits: the original code belongs to Stanford CS231n course assignment1. Source link: http://cs231n.github.io/assignments2019/assignment1/
 """
@@ -75,7 +76,7 @@ class KNearestNeighbor:
                 # not use a loop over dimension, nor use np.linalg.norm().          #
                 #####################################################################
                 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+                dists[i, j] = np.sum((self.X_train[j] - X[i]) ** 2)
                 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
 
@@ -97,7 +98,9 @@ class KNearestNeighbor:
             # Do not use np.linalg.norm().                                        #
             #######################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            train_broadcast_square = np.sum(self.X_train ** 2, axis=1)
+            test_broadcast_square = np.sum(X[i] ** 2)
+            dists[i] = train_broadcast_square + test_broadcast_square - 2 * np.dot(self.X_train, X[i])
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
 
@@ -125,7 +128,10 @@ class KNearestNeighbor:
         #       and two broadcast sums.                                         #
         #########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        train_broadcast_square = np.sum(self.X_train ** 2, axis=1)
+        test_broadcast_square = np.sum(X ** 2, axis=1)
+        dists = train_broadcast_square[:, np.newaxis] + test_broadcast_square - 2 * np.dot(self.X_train, X.T)
+        dists = dists.T
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
 
@@ -155,7 +161,8 @@ class KNearestNeighbor:
             # Hint: Look up the function numpy.argsort.                             #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            knn_indexes = np.argsort(dists[i])[:k]
+            knn_labels = self.y_train[knn_indexes]
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             #########################################################################
             # TODO:                                                                 #
@@ -165,8 +172,7 @@ class KNearestNeighbor:
             # label.                                                                #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-
+            y_pred[i] = np.argmax(np.bincount(knn_labels))
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         return y_pred
